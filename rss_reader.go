@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/nerf/rss_reader/utils"
 )
 
 // ErrEmptyUrlsSet is returned when urls list is empty
@@ -100,7 +102,12 @@ func fetchItemsFromURL(url string, itemsCh chan<- RssItem, quitCh chan<- ping) {
 	source := rssFeed.Channel.Source
 	sourceURL := rssFeed.Channel.SourceURL
 	for _, i := range rssFeed.Channel.Items {
-		date, _ := time.Parse(time.RFC1123Z, i.PublishDate)
+		date, err := utils.ParseDate(i.PublishDate)
+
+		if err != nil {
+			// We don't want entries without date
+			return
+		}
 
 		itemsCh <- RssItem{
 			Title:       i.Title,
