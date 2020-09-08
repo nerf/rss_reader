@@ -10,9 +10,6 @@ import (
 	"github.com/nerf/rss_reader/utils"
 )
 
-// ErrEmptyUrlsSet is returned when urls list is empty
-var ErrEmptyUrlsSet = errors.New("Urls list is empty")
-
 // RssItem struct that contains rss item data
 type RssItem struct {
 	Title       string    `json:"title"`
@@ -31,10 +28,9 @@ type rssFeed struct {
 }
 
 type rssChannel struct {
-	XMLName   xml.Name  `xml:"channel"`
-	Source    string    `xml:"title"`
-	SourceURL string    `xml:"link"`
-	Items     []rssItem `xml:"item"`
+	XMLName xml.Name  `xml:"channel"`
+	Source  string    `xml:"title"`
+	Items   []rssItem `xml:"item"`
 }
 
 type rssItem struct {
@@ -51,7 +47,7 @@ func Parse(urls []string) (items []RssItem, err error) {
 	numberOfUrls := len(urls)
 
 	if numberOfUrls == 0 {
-		return items, ErrEmptyUrlsSet
+		return items, errors.New("Urls list is empty")
 	}
 
 	itemsCh := make(chan RssItem)
@@ -100,7 +96,6 @@ func fetchItemsFromURL(url string, itemsCh chan<- RssItem, quitCh chan<- ping) {
 	}
 
 	source := rssFeed.Channel.Source
-	sourceURL := rssFeed.Channel.SourceURL
 	for _, i := range rssFeed.Channel.Items {
 		date, err := utils.ParseDate(i.PublishDate)
 
@@ -115,7 +110,7 @@ func fetchItemsFromURL(url string, itemsCh chan<- RssItem, quitCh chan<- ping) {
 			Link:        i.Link,
 			PublishDate: date,
 			Source:      source,
-			SourceURL:   sourceURL,
+			SourceURL:   url,
 		}
 	}
 }

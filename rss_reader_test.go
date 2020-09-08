@@ -76,7 +76,7 @@ var _ = Describe("RssReader", func() {
 				Expect(results[0].Link).To(Equal("http://www.example.com/1"))
 				Expect(results[0].PublishDate).To(BeTemporally("==", parsedDate))
 				Expect(results[0].Source).To(Equal("Test feed"))
-				Expect(results[0].SourceURL).To(Equal("http://example.com"))
+				Expect(results[0].SourceURL).To(Equal(server.URL() + "/feed.rss"))
 				Expect(results[1].Title).To(Equal("Second Title"))
 			})
 
